@@ -147,12 +147,11 @@ impl Config {
             .follow_links(true)
             .same_file_system(true)
             .into_iter()
-            .filter_entry(|e| self.filter(e))
+            .filter_entry(|e| e.file_type().is_dir() && self.filter(e))
         {
             match entry {
                 Ok(entry) => {
-                    if entry.file_type().is_dir() && entry.file_name() == ".git"
-                    {
+                    if entry.file_name() == ".git" {
                         let parent_path = entry
                             .path()
                             .parent()
