@@ -156,11 +156,10 @@ impl Config {
                             .path()
                             .parent()
                             .expect("Could not determine parent.");
-                        match parent_path.to_str() {
-                            Some(path) => {
+                        if let Some(path) = parent_path.to_str() {
+                            if git2::Repository::open(&path).is_ok() {
                                 repos.push(Repo::new(path.to_string()));
                             }
-                            None => (),
                         }
                     }
                 }
