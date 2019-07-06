@@ -51,6 +51,11 @@ pub struct Config {
     /// Default: true
     pub show_untracked: bool,
 
+    /// Filter recently changed repositories.
+    ///
+    /// Default: false
+    pub recent: bool,
+
     /// Path a cache file for git-global's usage.
     ///
     /// Default: `repos.txt` in the user's XDG cache directory.
@@ -89,6 +94,7 @@ impl Config {
                     show_untracked: cfg
                         .get_bool(SETTING_SHOW_UNTRACKED)
                         .unwrap_or(DEFAULT_SHOW_UNTRACKED),
+                    recent: false,
                     cache_file: cache_file,
                 })
             }
@@ -99,6 +105,7 @@ impl Config {
                     ignored_patterns: vec![],
                     default_cmd: String::from(DEFAULT_CMD),
                     show_untracked: DEFAULT_SHOW_UNTRACKED,
+                    recent: false,
                     cache_file: cache_file,
                 })
             }
@@ -111,7 +118,17 @@ impl Config {
             let repos = self.find_repos();
             self.cache_repos(&repos);
         }
-        self.get_cached_repos()
+        let repos = self.get_cached_repos();
+        if self.recent {
+            let max_hours = 7 * 24;
+            repos
+                .iter()
+                .cloned()
+                .filter(|r| r.num_hours_since_last_commit() < max_hours)
+                .collect()
+        } else {
+            repos
+        }
     }
 
     /// Clears the cache of known git repos, forcing a re-scan on the next

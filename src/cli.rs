@@ -30,6 +30,11 @@ fn get_clap_app<'a, 'b>() -> App<'a, 'b> {
                 .conflicts_with("untracked")
                 .help("Don't show untracked files in output."),
         )
+        .arg(
+            Arg::with_name("recent")
+                .long("recent")
+                .help("Use only recently changed repositories."),
+        )
         .subcommands(subcommands::get_subcommands().iter().map(
             |(ref cmd, ref desc)| SubCommand::with_name(*cmd).about(*desc),
         ))
@@ -42,6 +47,9 @@ fn merge_args_with_config(config: &mut Config, matches: &ArgMatches) {
     }
     if matches.is_present("nountracked") {
         config.show_untracked = false;
+    }
+    if matches.is_present("recent") {
+        config.recent = true;
     }
 }
 

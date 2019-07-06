@@ -1,5 +1,6 @@
 //! Git repository representation for git-global.
 
+use chrono::{TimeZone, Utc};
 use std::fmt;
 use std::path::PathBuf;
 
@@ -29,6 +30,25 @@ impl Repo {
     /// Returns the full path to the repo as a `String`.
     pub fn path(&self) -> String {
         self.path.to_str().unwrap().to_string()
+    }
+
+    /// Returns the age of the last commit in hours.
+    pub fn num_hours_since_last_commit(&self) -> i64 {
+        // dbg!(&self.path);
+        let git2_repo = self.as_git2_repo();
+        // dbg!(git2_repo.state());
+        if let Ok(head) = git2_repo.head() {
+            if let Some(oid) = head.target() {
+                if let Ok(commit) = git2_repo.find_commit(oid) {
+                    let commit_time = Utc.timestamp(commit.time().seconds(), 0);
+                    let age_h = Utc::now()
+                        .signed_duration_since(commit_time)
+                        .num_hours();
+                    return age_h;
+                }
+            }
+        }
+        i64::max_value()
     }
 
     /// Returns "short format" status output.
