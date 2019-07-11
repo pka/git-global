@@ -55,6 +55,8 @@ extern crate dirs;
 extern crate git2;
 #[macro_use]
 extern crate json;
+extern crate cursive;
+extern crate cursive_table_view;
 extern crate walkdir;
 
 mod cli;

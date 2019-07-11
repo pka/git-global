@@ -5,6 +5,7 @@ pub mod scan;
 pub mod staged;
 pub mod stashed;
 pub mod status;
+pub mod ui;
 pub mod unstaged;
 
 use config::Config;
@@ -21,6 +22,7 @@ pub fn run(command: &str, config: Config) -> Result<Report> {
         "stashed" => stashed::execute(config),
         "status" => status::execute(config),
         "unstaged" => unstaged::execute(config),
+        "ui" => ui::execute(config),
         cmd => Err(GitGlobalError::BadSubcommand(cmd.to_string())),
     }
 }
@@ -46,5 +48,6 @@ pub fn get_subcommands() -> Vec<(&'static str, &'static str)> {
             "unstaged",
             "Show working dir status for repos with unstaged changes",
         ),
+        ("ui", "Open console UI"),
     ]
 }

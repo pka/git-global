@@ -51,6 +51,29 @@ impl Repo {
         i64::max_value()
     }
 
+    pub fn get_status(&self) -> Vec<String> {
+        let mut status_opts = git2::StatusOptions::new();
+        status_opts
+            .show(git2::StatusShow::IndexAndWorkdir)
+            .include_untracked(true)
+            .include_ignored(false);
+        self.get_status_lines(status_opts)
+    }
+
+    pub fn get_short_status(&self) -> String {
+        let git2_repo = self.as_git2_repo();
+        let mut status_opts = git2::StatusOptions::new();
+        status_opts.show(git2::StatusShow::Workdir);
+        let statuses = git2_repo
+            .statuses(Some(&mut status_opts))
+            .expect(&format!("Could not get statuses for {}.", self));
+        if let Some(status) = statuses.get(0) {
+            get_short_format_status(status.status())
+        } else {
+            "?".to_string()
+        }
+    }
+
     /// Returns "short format" status output.
     pub fn get_status_lines(
         &self,
